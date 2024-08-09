@@ -1,0 +1,180 @@
+/* Estilos generales */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #f0f2f5;
+}
+
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.h-screen {
+  height: 100vh;
+}
+
+.bg-gray-900 {
+  background-color: #1a202c;
+}
+
+.text-white {
+  color: #fff;
+}
+
+.p-4 {
+  padding: 1rem;
+}
+
+.shadow-md {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.items-center {
+  align-items: center;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.text-2xl {
+  font-size: 2rem;
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.grid {
+  display: grid;
+}
+
+/* .grid-cols-[1fr_300px] {
+  grid-template-columns: 1fr 300px;
+} */
+
+.gap-4 {
+  gap: 1rem;
+}
+
+.bg-white {
+  background-color: #fff;
+}
+
+.rounded-lg {
+  border-radius: 0.5rem;
+}
+
+.mb-4 {
+  margin-bottom: 1rem;
+}
+
+.space-y-4 > * + * {
+  margin-top: 1rem;
+}
+
+.bg-gray-100 {
+  background-color: #f7fafc;
+}
+
+.hover\:bg-gray-200:hover {
+  background-color: #edf2f7;
+}
+
+.transition-colors {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-duration: 0.2s;
+  transition-timing-function: ease-in-out;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+/* Estilos de botones específicos */
+
+.button-eliminar {
+  background-color: #e53e3e; /* Rojo */
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.button-eliminar:hover {
+  background-color: #c53030; /* Rojo oscuro */
+}
+
+.button-guardar {
+  background-color: #38a169; /* Verde */
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.button-guardar:hover {
+  background-color: #2f855a; /* Verde oscuro */
+}
+
+.button-cancelar {
+  background-color: #6a707c; /* Gris */
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.button-cancelar:hover {
+  background-color: #96a4b9; 
+}
+
+.button-nuevo-evento {
+  background-color: #3182ce; 
+  color: white;
+  border: 1px solid white; 
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+  margin-right: 1rem; 
+}
+
+.button-nuevo-evento:hover {
+  background-color: #286aa7; 
+}
+
+.button-cerrar-sesion {
+  background-color: #dd6b20; /* Naranja */
+  color: white;
+  border: 1px solid white; /* Borde blanco */
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.button-cerrar-sesion:hover {
+  background-color: #c05621; /* Naranja oscuro */
+}
+
+/* Ajustar el tamaño del ícono Plus */
+.plus-icon {
+  width: 1em; /* Ajustar el tamaño del ícono al tamaño del texto */
+  height: 1em;
+  margin-right: 0.5rem; /* Espacio entre el ícono y el texto */
+}

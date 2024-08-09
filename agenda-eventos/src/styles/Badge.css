@@ -1,0 +1,23 @@
+.badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    display: inline-block;
+  }
+  
+  .badge.outline {
+    border: 1px solid currentColor;
+    color: inherit;
+  }
+  
+  .bg-gray-200 {
+    background-color: #edf2f7;
+  }
+  
+  .dark\:bg-gray-800 {
+    background-color: #2d3748;
+  }
+  
+  .dark\:text-gray-400 {
+    color: #cbd5e0;
+  }
+  
