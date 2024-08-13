@@ -68,4 +68,13 @@ const getUserProfile = async (req, res) => {
     }
 };
 
-module.exports = { registerUser, loginUser, getUserProfile };
+const getAllUsers = async (req, res, next) => {
+    try {
+        const users = await User.find().select('-password'); // Excluir el campo de la contraseña
+        res.json(users);
+    } catch (error) {
+        next(error);
+    }
+};
+
+module.exports = { registerUser, loginUser, getUserProfile, getAllUsers };

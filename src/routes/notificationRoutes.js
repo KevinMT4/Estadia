@@ -4,7 +4,7 @@ const { protect } = require('../middlewares/authMiddleware');
 
 const router = express.Router();
 
-router.post('/', protect, createNotification);
-router.get('/', protect, getNotifications);
+router.post('/', createNotification);
+router.get('/', getNotifications);
 
 module.exports = router;

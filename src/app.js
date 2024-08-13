@@ -21,7 +21,10 @@ const app = express();
 app.use(helmet());
 
 // Middlewares
-app.use(cors());
+app.use(cors({
+    origin: process.env.CORS_ORIGIN || 'http://localhost:3000', // Asegúrate de que esto coincide con tu frontend
+    credentials: true
+}));
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(hpp());
@@ -38,6 +41,7 @@ app.use(limiter);
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/events', require('./routes/eventRoutes'));
 app.use('/api/notifications', require('./routes/notificationRoutes'));
+app.use('/api/users', require('./routes/userRoutes'));  // Añadir la nueva ruta aquí
 
 // Middleware de manejo de errores
 app.use(errorHandler);

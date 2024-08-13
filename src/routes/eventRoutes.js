@@ -4,8 +4,8 @@ const { protect } = require('../middlewares/authMiddleware');
 
 const router = express.Router();
 
-router.post('/', protect, createEvent);
-router.get('/', protect, getEvents);
-router.delete('/:id', protect, deleteEvent);
+router.post('/', createEvent);
+router.get('/', getEvents);
+router.delete('/:id', deleteEvent);
 
 module.exports = router;
