@@ -10,12 +10,7 @@ import Badge from './components/Badge';
 import UserSelect from './components/UserSelect';
 import { sendNotification } from './utils/notification';
 import Swal from 'sweetalert2';
-
-const users = [
-  { id: 1, name: 'Usuario 1', email: 'usuario1@example.com' },
-  { id: 2, name: 'Usuario 2', email: 'usuario2@example.com' },
-  // Añadir más usuarios según sea necesario
-];
+import api from './utils/api';
 
 function App() {
   const [events, setEvents] = useState([]);
@@ -23,14 +18,46 @@ function App() {
   const [showEventForm, setShowEventForm] = useState(false);
   const [selectedUserIds, setSelectedUserIds] = useState([]);
   const [selectedDate, setSelectedDate] = useState(null);
+  const [users, setUsers] = useState([]);  // Estado para almacenar los usuarios
   const navigate = useNavigate();
 
   useEffect(() => {
     const user = localStorage.getItem('user');
     if (!user) {
       navigate('/');
+    } else {
+      fetchEvents();  // Cargar eventos al montar el componente
+      fetchUsers();
     }
   }, [navigate]);
+
+  const fetchEvents = async () => {
+    try {
+      const response = await api.get('/events');  // Llama a la API para obtener eventos
+      setEvents(response.data);  // Asume que la API devuelve un array de eventos
+      /* console.log('events: ', JSON.stringify(response.data)); */
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error al cargar eventos',
+        text: 'No se pudo cargar los eventos. Por favor, inténtelo de nuevo más tarde.',
+      });
+    }
+  };
+
+  const fetchUsers = async () => {
+    try {
+      const response = await api.get('/users/users');  // Llama a la API para obtener usuarios
+      setUsers(response.data); // Asume que la API devuelve un array de usuarios
+      /* console.log('users: ', response.data); */
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error al cargar usuarios',
+        text: 'No se pudo cargar los usuarios. Por favor, inténtelo de nuevo más tarde.',
+      });
+    }
+  };
 
   const handleDayClick = (day) => {
     Swal.fire({
@@ -60,7 +87,7 @@ function App() {
     }).then((result) => {
       if (result.isConfirmed) {
         setSelectedEvent(event);
-        setSelectedUserIds(event.userIds);
+        setSelectedUserIds(event.users); // Asignar usuarios al estado
         setShowEventForm(true);
       } else if (result.isDenied) {
         handleEventDelete(event);
@@ -68,12 +95,12 @@ function App() {
     });
   };
 
-  const handleEventSave = (event) => {
+  const handleEventSave = async (event) => {
     // Validación de fechas y horas
     const now = new Date();
-    const startDate = new Date(event.start);
-    const endDate = new Date(event.end);
-
+    const startDate = new Date(event.inicio);
+    const endDate = new Date(event.final);
+  
     if (startDate < now) {
       Swal.fire({
         icon: 'error',
@@ -82,7 +109,7 @@ function App() {
       });
       return;
     }
-
+  
     if (endDate <= startDate) {
       Swal.fire({
         icon: 'error',
@@ -91,30 +118,50 @@ function App() {
       });
       return;
     }
-
+  
     const userNames = selectedUserIds.length > 0 
-      ? selectedUserIds.map(userId => users.find(user => user.id === userId).name) 
+      ? selectedUserIds.map(userId => users.find(user => user._id === userId)?.username) 
       : ['Sin asignar'];
-
-    const newEvent = { ...event, userIds: selectedUserIds, userNames };
-
-    if (selectedEvent) {
-      // Actualizar evento existente
-      setEvents(events.map((e) => (e.id === selectedEvent.id ? { ...newEvent, id: selectedEvent.id } : e)));
-    } else {
-      // Crear nuevo evento
-      setEvents([...events, { ...newEvent, id: events.length + 1 }]);
+  
+    const newEvent = { ...event, users: selectedUserIds, userNames };
+  
+    try {
+      if (selectedEvent) {
+        // Actualizar evento existente
+        await api.put(`/events/${selectedEvent._id}`, newEvent);  // Llama a la API para actualizar
+        setEvents(events.map((e) => (e._id === selectedEvent._id ? { ...newEvent, _id: selectedEvent._id } : e)));
+      } else {
+        // Crear nuevo evento
+        const response = await api.post('/events', newEvent);  // Llama a la API para crear
+        setEvents([...events, { ...newEvent, _id: response.data._id }]);  // Asume que la API devuelve el id del nuevo evento
+      }
+      setShowEventForm(false);
+      setSelectedEvent(null);  // Resetear el evento seleccionado
+      setSelectedUserIds([]);  // Resetear los usuarios seleccionados
+      setSelectedDate(null);  // Resetear la fecha seleccionada
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error al guardar evento',
+        text: 'No se pudo guardar el evento. Por favor, inténtelo de nuevo más tarde.',
+      });
     }
-    setShowEventForm(false);
-    setSelectedEvent(null); // Resetear el evento seleccionado
-    setSelectedUserIds([]); // Resetear los usuarios seleccionados
-    setSelectedDate(null); // Resetear la fecha seleccionada
   };
+  
 
-  const handleEventDelete = (event) => {
-    setEvents(events.filter((e) => e.id !== event.id));
-    setSelectedEvent(null);
-    setShowEventForm(false);
+  const handleEventDelete = async (event) => {
+    try {
+      await api.delete(`/events/${event._id}`); // Llama a la API para eliminar el evento
+      setEvents(events.filter((e) => e._id !== event._id));
+      setSelectedEvent(null);
+      setShowEventForm(false);
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error al eliminar evento',
+        text: 'No se pudo eliminar el evento. Por favor, inténtelo de nuevo más tarde.',
+      });
+    }
   };
 
   const handleLogout = () => {
@@ -140,9 +187,11 @@ function App() {
         const eventDate = new Date(event.start);
         const diff = (eventDate - now) / (1000 * 60 * 60); // Diferencia en horas
         if (diff > 0 && diff < 24) {
-          event.userIds.forEach(userId => {
-            const user = users.find(user => user.id === userId);
-            sendNotification(user.email, event);
+          event.users.forEach(userId => {
+            const user = users.find(user => user._id === userId);
+            if (user) {
+              sendNotification(user.email, event);
+            }
           });
         }
       });
@@ -185,9 +234,9 @@ function App() {
 
                 const newEvent = {
                   title: e.target.title.value,
-                  start: new Date(`${startDate}T${startTime}`),
-                  end: new Date(`${startDate}T${endTime}`),
-                  description: e.target.description.value,
+                  inicio: new Date(`${startDate}T${startTime}`),
+                  final: new Date(`${startDate}T${endTime}`),
+                  descripcion: e.target.description.value,
                   color: e.target.color.value,
                 };
                 handleEventSave(newEvent);
@@ -215,7 +264,7 @@ function App() {
                     type="date"
                     id="date"
                     name="date"
-                    defaultValue={selectedEvent?.start ? selectedEvent.start.toISOString().slice(0, 10) : selectedDate ? selectedDate.toISOString().slice(0, 10) : ''}
+                    defaultValue={selectedEvent?.inicio ? selectedEvent.inicio.toISOString().slice(0, 10) : selectedDate ? selectedDate.toISOString().slice(0, 10) : ''}
                     className="w-full"
                     required
                   />
@@ -228,7 +277,7 @@ function App() {
                     type="time"
                     id="startTime"
                     name="startTime"
-                    defaultValue={selectedEvent?.start ? new Date(selectedEvent.start).toISOString().slice(11, 16) : ''}
+                    defaultValue={selectedEvent?.inicio ? new Date(selectedEvent.inicio).toISOString().slice(11, 16) : ''}
                     className="w-full"
                     required
                   />
@@ -241,7 +290,7 @@ function App() {
                     type="time"
                     id="endTime"
                     name="endTime"
-                    defaultValue={selectedEvent?.end ? new Date(selectedEvent.end).toISOString().slice(11, 16) : ''}
+                    defaultValue={selectedEvent?.final ? new Date(selectedEvent.final).toISOString().slice(11, 16) : ''}
                     className="w-full"
                     required
                   />
@@ -254,7 +303,7 @@ function App() {
                 <Textarea
                   id="description"
                   name="description"
-                  defaultValue={selectedEvent?.description || ''}
+                  defaultValue={selectedEvent?.descripcion || ''}
                   className="w-full"
                   rows={3}
                 />
@@ -304,21 +353,21 @@ function App() {
             <div className="space-y-4">
               {events.map((event) => (
                 <div
-                  key={event.id}
+                  key={event._id}
                   className="bg-gray-100 rounded-md p-4 cursor-pointer hover:bg-gray-200 transition-colors"
                   onClick={() => handleEventClick(event)}
                 >
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="text-lg font-medium">{event.title}</h3>
                     <Badge variant="outline" className="calendar-event-date">
-                      {new Date(event.start).toLocaleDateString()}
+                      {new Date(event.inicio).toLocaleDateString()}
                     </Badge>
                   </div>
                   <p className="text-gray-500 mb-2">
-                    {new Date(event.start).toLocaleTimeString()} - {new Date(event.end).toLocaleTimeString()}
+                    {new Date(event.inicio).toLocaleTimeString()} - {new Date(event.final).toLocaleTimeString()}
                   </p>
                   <p className="text-gray-500">{event.description}</p>
-                  <p className="text-gray-500">Usuarios: {event.userNames.join(', ')}</p>
+                  <p className="text-gray-500">Usuarios: {event.users.map(user => user.username).join(', ')}</p>
                 </div>
               ))}
             </div>

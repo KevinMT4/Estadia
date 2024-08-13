@@ -12,8 +12,8 @@ const UserSelect = ({ id, name, users, defaultValue, className, required }) => {
       multiple
     >
       {users.map((user) => (
-        <option key={user.id} value={user.id}>
-          {user.name}
+        <option key={user._id} value={user._id}>
+          {user.username}
         </option>
       ))}
     </select>

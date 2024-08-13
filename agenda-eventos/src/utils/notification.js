@@ -7,7 +7,7 @@ export const sendNotification = (email, event) => {
   const templateParams = {
     to_email: email,
     subject: 'Recordatorio de evento próximo',
-    message: `El evento ${event.title} está programado para ${event.start.toLocaleString()} - ${event.end.toLocaleString()}.`,
+    message: `El evento ${event.title} está programado para ${event.inicio.toLocaleString()} - ${event.final.toLocaleString()}.`,
   };
 
   emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', templateParams, 'YOUR_USER_ID')

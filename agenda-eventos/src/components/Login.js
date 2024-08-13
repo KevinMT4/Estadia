@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import '../styles/Login.css';
+import api from '../utils/api';  // Importa la instancia de Axios configurada
 
 const Login = ({ onLogin }) => {
   const [email, setEmail] = useState('');
@@ -9,12 +10,20 @@ const Login = ({ onLogin }) => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (email === 'user@example.com' && password === 'password') {
-      onLogin(email);
-      navigate('/app');
-    } else {
+
+    try {
+      console.log(email, password);
+      const response = await api.post('/auth/login', { email, password });   // Llama a la API para hacer login
+      const { token, user } = response.data;  // Asume que la API devuelve un token y los datos del usuario
+
+      // Guardar el token en localStorage o en el estado de la aplicación
+      localStorage.setItem('token', token);
+      onLogin(user);  // Llama al callback onLogin con los datos del usuario
+
+      navigate('/app');  // Redirige al usuario a la aplicación principal
+    } catch (error) {
       setError('Correo o contraseña incorrectos');
     }
   };
